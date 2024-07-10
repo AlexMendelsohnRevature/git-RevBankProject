@@ -1,0 +1,65 @@
+package com.revature.service;
+
+import com.revature.entity.User;
+import com.revature.exception.LoginFail;
+import com.revature.repository.UserDao;
+
+import java.util.List;
+
+public class UserService {
+
+    private UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public User validateUserCredentials(User newUserCredentials)
+    {
+        if(checkUserNamePasswordLength(newUserCredentials))
+        {
+            if(checkUsernameIsUnique(newUserCredentials))
+            {
+                return userDao.createUser(newUserCredentials);
+            }
+
+        }
+        throw new RuntimeException("Placeholder exception");
+    }
+
+    public User checkLoginCredentials(User credentials)
+    {
+        for(User user : userDao.getAllUsers())
+        {
+            boolean userNameMatches = user.getUsername().equals(credentials.getUsername());
+            boolean passwordMatches = user.getPassword().equals(credentials.getPassword());
+            if(userNameMatches && passwordMatches)
+            {
+                return credentials;
+            }
+        }
+        throw new LoginFail("Credentials are invalid: please try again");
+    }
+
+    private boolean checkUserNamePasswordLength(User newUserCredentials)
+    {
+        boolean usernameIsValid = newUserCredentials.getUsername().length() <= 30;
+        boolean passwordIsValid = newUserCredentials.getPassword().length() <= 30;
+        return usernameIsValid && passwordIsValid;
+    }
+
+    private boolean checkUsernameIsUnique(User newUserCredentials)
+    {
+        boolean userNameIsUnique = true;
+        List<User> users = userDao.getAllUsers();
+        for(User user : users){
+            if(newUserCredentials.getUsername().equals(user.getUsername()))
+            {
+                userNameIsUnique = false;
+                break;
+            }
+        }
+
+        return userNameIsUnique;
+    }
+}
