@@ -22,7 +22,6 @@ public class UserService {
             {
                 return userDao.createUser(newUserCredentials);
             }
-
         }
         throw new RuntimeException("Placeholder exception");
     }

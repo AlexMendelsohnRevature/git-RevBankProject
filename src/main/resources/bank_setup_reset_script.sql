@@ -6,4 +6,11 @@ create table "user"(
 
 );
 
+create table "account"(
+    username text,
+    balance double
+)
+
 insert into "user" values ('admin', 'password');
+
+join "user" on "user".username = "account".username;

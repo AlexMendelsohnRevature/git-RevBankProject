@@ -15,7 +15,7 @@ public class SqliteBankDao implements BankDao {
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setObject(1, newBankAccountInfo);
+            preparedStatement.setString(1, newBankAccountInfo.getUser().getUsername());
             preparedStatement.setDouble(2, newBankAccountInfo.getBalance());
             int result = preparedStatement.executeUpdate();
             if(result == 1)
@@ -28,6 +28,53 @@ public class SqliteBankDao implements BankDao {
             throw new UserSQLException((exception.getMessage()));
         }
     }
+
+    @Override
+    public void deleteBankAccount(BankAccount bankAccountInfo) {
+        String sql = "delete from account where username = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, bankAccountInfo.getUser().getUsername());
+            int resultSet = preparedStatement.executeUpdate();
+            if(resultSet > 0)
+            {
+                System.out.println("Account deleted successfully!");
+            }
+            else
+            {
+                System.out.println("Account not found.");
+            }
+            throw new UserSQLException("Account could not be deleted please try again.");
+        }catch (SQLException exception)
+        {
+            throw new UserSQLException((exception.getMessage()));
+        }
+    }
+
+    @Override
+    public BankAccount updateBankAccount(BankAccount bankAccountInfo) {
+            String sql = "update account where balance = ?";
+            try(Connection connection = DatabaseConnector.createConnection())
+            {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setDouble(1, bankAccountInfo.getBalance());
+                int resultSet = preparedStatement.executeUpdate();
+                if(resultSet == 1)
+                {
+                    return bankAccountInfo;
+                }
+                else
+                {
+                    System.out.println("Account not found.");
+                }
+                throw new UserSQLException("Account could not be updated please try again.");
+            }catch (SQLException exception)
+            {
+                throw new UserSQLException((exception.getMessage()));
+            }
+        }
+
 
     @Override
     public List<BankAccount> getAllBankAccounts() {

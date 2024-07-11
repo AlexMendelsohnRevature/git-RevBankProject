@@ -1,8 +1,11 @@
 package com.revature;
 
 import com.revature.controller.UserController;
+import com.revature.repository.BankDao;
+import com.revature.repository.SqliteBankDao;
 import com.revature.repository.SqliteUserDao;
 import com.revature.repository.UserDao;
+import com.revature.service.BankService;
 import com.revature.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +17,11 @@ public class Main {
 
 
             UserDao userDao = new SqliteUserDao();
+            BankDao bankDao = new SqliteBankDao();
 
             UserService userService = new UserService(userDao);
 
-            UserController userController = new UserController(scanner, userService);
+            UserController userController = new UserController(scanner, userService, bankDao);
 
             Map<String, String> controlMap = new HashMap<>();
             controlMap.put("Continue Loop", "true");
