@@ -18,37 +18,22 @@ public class BankService {
 
     public BankAccount openAccount(User user, double startingDeposit)
     {
-        for(BankAccount account : bankDao.getAllBankAccounts())
-        {
-            boolean hasAccount = account.getUser().hasAccount();
-            if(!hasAccount)
-            {
-                account.getUser().setAccount(true);
-                System.out.println("Account created successfully.");
-                return bankDao.createBankAccount(new BankAccount(user, startingDeposit));
-            }
-        }
-        throw new CreateAccountException("Account could not be created.");
+        return bankDao.createBankAccount(new BankAccount(user.getUsername(), user.getPassword(), startingDeposit));
     }
 
     public void closeAccount(BankAccount bankAccountInfo)
     {
-        for(BankAccount account : bankDao.getAllBankAccounts())
-        {
-            boolean hasAccount = account.getUser().hasAccount();
-            if(hasAccount)
-            {
-                account.getUser().setAccount(false);
-                System.out.println("Account closed successfully.");
-                bankDao.deleteBankAccount(bankAccountInfo);
-            }
-        }
-        throw new CloseAccountException("Account could not be closed.");
+        bankDao.deleteBankAccount(bankAccountInfo);
     }
 
     public BankAccount updateBalance(BankAccount bankAccountInfo)
     {
         System.out.println("Your updated account balance is now:" + bankAccountInfo.getBalance());
         return bankDao.updateBankAccount(bankAccountInfo);
+    }
+
+    public BankAccount getAccount()
+    {
+        return bankDao.getBankAccount();
     }
 }

@@ -5,24 +5,33 @@ import java.util.Objects;
 
 public class BankAccount implements Serializable {
 
-    private User user;
-
+    private String username;
+    private String password;
     private double balance;
 
     public BankAccount(){}
 
-    public BankAccount(User user, double balance)
+    public BankAccount(String username, String password, double balance)
     {
-        this.user = user;
+        this.username = username;
+        this.password = password;
         this.balance = balance;
     }
 
-    public User getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public double getBalance() {
@@ -38,18 +47,19 @@ public class BankAccount implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BankAccount that = (BankAccount) o;
-        return Double.compare(getBalance(), that.getBalance()) == 0 && Objects.equals(getUser(), that.getUser());
+        return Double.compare(getBalance(), that.getBalance()) == 0 && Objects.equals(getUsername(), that.getUsername()) && Objects.equals(getPassword(), that.getPassword());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUser(), getBalance());
+        return Objects.hash(getUsername(), getPassword(), getBalance());
     }
 
     @Override
     public String toString() {
         return "BankAccount{" +
-                "user=" + user +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
                 ", balance=" + balance +
                 '}';
     }

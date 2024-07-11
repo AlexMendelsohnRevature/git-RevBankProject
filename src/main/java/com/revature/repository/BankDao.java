@@ -9,5 +9,5 @@ public interface BankDao {
     BankAccount createBankAccount(BankAccount newBankAccountInfo);
     void deleteBankAccount(BankAccount bankAccountInfo);
     BankAccount updateBankAccount(BankAccount bankAccountInfo);
-    List<BankAccount> getAllBankAccounts();
+    BankAccount getBankAccount();
 }

@@ -11,12 +11,13 @@ import java.util.List;
 public class SqliteBankDao implements BankDao {
     @Override
     public BankAccount createBankAccount(BankAccount newBankAccountInfo) {
-        String sql = "insert into user values (?, ?)";
+        String sql = "insert into account values (?, ?, ?)";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, newBankAccountInfo.getUser().getUsername());
-            preparedStatement.setDouble(2, newBankAccountInfo.getBalance());
+            preparedStatement.setString(1, newBankAccountInfo.getUsername());
+            preparedStatement.setString(2, newBankAccountInfo.getPassword());
+            preparedStatement.setDouble(3, newBankAccountInfo.getBalance());
             int result = preparedStatement.executeUpdate();
             if(result == 1)
             {
@@ -35,7 +36,7 @@ public class SqliteBankDao implements BankDao {
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, bankAccountInfo.getUser().getUsername());
+            preparedStatement.setString(1, bankAccountInfo.getUsername());
             int resultSet = preparedStatement.executeUpdate();
             if(resultSet > 0)
             {
@@ -45,7 +46,6 @@ public class SqliteBankDao implements BankDao {
             {
                 System.out.println("Account not found.");
             }
-            throw new UserSQLException("Account could not be deleted please try again.");
         }catch (SQLException exception)
         {
             throw new UserSQLException((exception.getMessage()));
@@ -54,13 +54,15 @@ public class SqliteBankDao implements BankDao {
 
     @Override
     public BankAccount updateBankAccount(BankAccount bankAccountInfo) {
-            String sql = "update account where balance = ?";
+            String sql = "update account set username = ?, password = ?, balance = ?";
             try(Connection connection = DatabaseConnector.createConnection())
             {
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setDouble(1, bankAccountInfo.getBalance());
+                preparedStatement.setString(1, bankAccountInfo.getUsername());
+                preparedStatement.setString(2, bankAccountInfo.getPassword());
+                preparedStatement.setDouble(3, bankAccountInfo.getBalance());
                 int resultSet = preparedStatement.executeUpdate();
-                if(resultSet == 1)
+                if(resultSet > 0)
                 {
                     return bankAccountInfo;
                 }
@@ -77,23 +79,22 @@ public class SqliteBankDao implements BankDao {
 
 
     @Override
-    public List<BankAccount> getAllBankAccounts() {
+    public BankAccount getBankAccount() {
         
         String sql = "select * from account";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery((sql));
-            List<BankAccount> accounts = new ArrayList<>();
+            BankAccount bankAccount = new BankAccount();
             while(resultSet.next())
             {
-                BankAccount bankRecord = new BankAccount();
-                bankRecord.getUser().setUsername(resultSet.getString("username"));
-                bankRecord.getUser().setPassword(resultSet.getString("password"));
-                bankRecord.setBalance(resultSet.getDouble("balance"));
-                accounts.add(bankRecord);
+                bankAccount.setUsername(resultSet.getString("username"));
+                bankAccount.setPassword(resultSet.getString("password"));
+                bankAccount.setBalance(resultSet.getDouble("balance"));
+
             }
-            return accounts;
+            return bankAccount;
         }
         catch (SQLException exception)
         {

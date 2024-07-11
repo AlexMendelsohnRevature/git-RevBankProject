@@ -9,15 +9,15 @@ public class User implements Serializable {
 
     private String password;
 
-    private boolean account;
+    private boolean loggedIn;
 
     public User(){}
 
-    public User(String username, String password, boolean account)
+    public User(String username, String password, boolean loggedIn)
     {
         this.username = username;
         this.password = password;
-        this.account = account;
+        this.loggedIn = loggedIn;
     }
 
     public String getUsername() {
@@ -28,13 +28,6 @@ public class User implements Serializable {
         return password;
     }
 
-    public boolean hasAccount() {
-        return account;
-    }
-
-    public void setAccount(boolean account) {
-        this.account = account;
-    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -42,6 +35,14 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
     }
 
     @Override

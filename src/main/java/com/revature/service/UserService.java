@@ -16,23 +16,24 @@ public class UserService {
 
     public User validateUserCredentials(User newUserCredentials)
     {
-        if(checkUserNamePasswordLength(newUserCredentials))
+        if(checkUsernamePasswordLength(newUserCredentials))
         {
             if(checkUsernameIsUnique(newUserCredentials))
             {
                 return userDao.createUser(newUserCredentials);
             }
         }
-        throw new RuntimeException("Placeholder exception");
+        throw new RuntimeException("An account with that name exists or invalid account name.");
     }
 
     public User checkLoginCredentials(User credentials)
     {
         for(User user : userDao.getAllUsers())
         {
-            boolean userNameMatches = user.getUsername().equals(credentials.getUsername());
+            boolean usernameMatches = user.getUsername().equals(credentials.getUsername());
             boolean passwordMatches = user.getPassword().equals(credentials.getPassword());
-            if(userNameMatches && passwordMatches)
+            boolean loggedIn = user.isLoggedIn();
+            if(usernameMatches && passwordMatches && !loggedIn)
             {
                 return credentials;
             }
@@ -40,7 +41,7 @@ public class UserService {
         throw new LoginFail("Credentials are invalid: please try again");
     }
 
-    private boolean checkUserNamePasswordLength(User newUserCredentials)
+    private boolean checkUsernamePasswordLength(User newUserCredentials)
     {
         boolean usernameIsValid = newUserCredentials.getUsername().length() <= 30;
         boolean passwordIsValid = newUserCredentials.getPassword().length() <= 30;
@@ -60,5 +61,16 @@ public class UserService {
         }
 
         return userNameIsUnique;
+    }
+
+    public User modifyUser(User credentials)
+    {
+        return userDao.updateUser(credentials);
+    }
+
+    public User authenticatedUser(){
+        User user = userDao.getUser();
+        user.setLoggedIn(true);
+        return user;
     }
 }

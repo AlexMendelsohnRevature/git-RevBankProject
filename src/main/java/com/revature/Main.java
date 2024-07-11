@@ -21,7 +21,9 @@ public class Main {
 
             UserService userService = new UserService(userDao);
 
-            UserController userController = new UserController(scanner, userService, bankDao);
+            BankService bankService = new BankService(bankDao);
+
+            UserController userController = new UserController(scanner, userService, bankService);
 
             Map<String, String> controlMap = new HashMap<>();
             controlMap.put("Continue Loop", "true");

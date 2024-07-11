@@ -14,18 +14,66 @@ public class SqliteUserDao implements UserDao {
     @Override
     public User createUser(User newUserCredentials) {
 
-        String sql = "insert into user values (?, ?)";
+        String sql = "insert into user values (?, ?, ?)";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, newUserCredentials.getUsername());
             preparedStatement.setString(2, newUserCredentials.getPassword());
+            preparedStatement.setBoolean(3, newUserCredentials.isLoggedIn());
             int result = preparedStatement.executeUpdate();
             if(result == 1)
             {
                return newUserCredentials;
             }
             throw new UserSQLException("User could not be created please try again.");
+        }catch (SQLException exception)
+        {
+            throw new UserSQLException((exception.getMessage()));
+        }
+    }
+
+    @Override
+    public User getUser() {
+        String sql = "select * from user where username = ? and password = ? and loggedIn = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery((sql));
+            User user = new User();
+            while(resultSet.next())
+            {
+                user.setUsername(resultSet.getString("username"));
+                user.setPassword(resultSet.getString("password"));
+                user.setLoggedIn(resultSet.getBoolean("loggedIn"));
+            }
+            return user;
+        }
+        catch (SQLException exception)
+        {
+            throw new UserSQLException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public User updateUser(User userCredentials) {
+        String sql = "update user set username = ?, password = ?, loggedIn = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, userCredentials.getUsername());
+            preparedStatement.setString(2, userCredentials.getPassword());
+            preparedStatement.setBoolean(3, userCredentials.isLoggedIn());
+            int resultSet = preparedStatement.executeUpdate();
+            if(resultSet > 0)
+            {
+                return userCredentials;
+            }
+            else
+            {
+                System.out.println("Account not found.");
+            }
+            throw new UserSQLException("Account could not be updated please try again.");
         }catch (SQLException exception)
         {
             throw new UserSQLException((exception.getMessage()));

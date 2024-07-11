@@ -28,51 +28,71 @@ public class UserController
     {
 
         System.out.println("What would you like to do?");
-        System.out.println("1. register an account.");
-        System.out.println("2. login.");
-        System.out.println("3. Create an account.");
-        System.out.println("4. Deposit money.");
-        System.out.println("5. Withdraw money.");
-        System.out.println("6. Close an account.");
-        System.out.println("q. quit.");
+        System.out.println("1. Register an account.");
+        System.out.println("2. Login.");
+        System.out.println("q. Quit.");
 
         try {
             String userActionIndicated = scanner.nextLine();
             switch (userActionIndicated) {
                 case "1":
                 case "r":
+                case "R":
                 case "register":
+                case "Register":
                     registerNewUser();
                     break;
                 case "2":
                 case "l":
+                case "L":
                 case "login":
+                case "Login":
                     controlMap.put("User", login().getUsername());
+                    promptUserForOptions();
+                    try {
+                        String newUserActionIndicated = scanner.nextLine();
+                        switch (newUserActionIndicated) {
+                            case "1":
+                            case "d":
+                            case "D":
+                            case "deposit":
+                            case "Deposit":
+                                deposit(authAccount());
+                                break;
+                            case "2":
+                            case "w":
+                            case "W":
+                            case "withdraw":
+                            case "Withdraw":
+                                withdraw(authAccount());
+                                break;
+                            case "3":
+                            case "c":
+                            case "C":
+                            case "close":
+                            case "Close":
+                                closeAccount(authAccount(), controlMap);
+                                break;
+                            case "4":
+                            case "q":
+                            case "Q":
+                            case "quit":
+                            case "Quit":
+                                System.out.println("Goodbye!");
+                                controlMap.put("Continue Loop", "false");
+                        }
+                    }catch(LoginFail exception)
+                    {
+                        System.out.println(exception.getMessage());
+                    }
                     break;
                 case "3":
-                case "c":
-                case "create":
-                    createAccount();
-                    break;
-                case "4":
-                case "d":
-                case "deposit":
-                    deposit();
-                    break;
-                case "5":
-                case "w":
-                case "withdraw":
-                    withdraw();
-                    break;
-                case "6":
-                case "cl":
-                case "close":
-                    closeAccount();
-                    break;
                 case "q":
+                case "Q":
                 case "quit":
+                case "Quit":
                     System.out.println("Goodbye!");
-                    controlMap.put("Program Looping", "False");
+                    controlMap.put("Continue Loop", "false");
             }
 
         }catch(LoginFail exception)
@@ -80,6 +100,14 @@ public class UserController
             System.out.println(exception.getMessage());
         }
 
+    }
+    public void promptUserForOptions()
+    {
+        System.out.println("What would you like to do?");
+        System.out.println("1. Deposit money.");
+        System.out.println("2. Withdraw money.");
+        System.out.println("3. Close an account.");
+        System.out.println("q. Quit.");
     }
 
     public void registerNewUser()
@@ -93,7 +121,10 @@ public class UserController
 
         User newCredentials = new User(newUsername, newPassword, false);
         User newUser = userService.validateUserCredentials(newCredentials);
-        System.out.printf("New account created: %s", newUser);
+
+        BankAccount newAccount = createAccount(newUser);
+
+        System.out.printf("New account created: %s", newUser + " With a starting Balance of: " + newAccount.getBalance() + "\n");
     }
 
     public User login()
@@ -101,6 +132,19 @@ public class UserController
         return userService.checkLoginCredentials(getUserCredentials());
     }
 
+    public  User authenticated()
+    {
+        return userService.authenticatedUser();
+    }
+
+    public BankAccount authAccount()
+    {
+        if(authenticated().isLoggedIn())
+        {
+            return bankService.getAccount();
+        }
+        throw new RuntimeException("No account found.");
+    }
     public User getUserCredentials()
     {
         String newUsername;
@@ -110,16 +154,15 @@ public class UserController
         System.out.println("Please Enter a Password.");
         newPassword = scanner.nextLine();
 
-        return new User(newUsername, newPassword, false);
+        return userService.modifyUser(new User(newUsername, newPassword, true));
     }
 
-    public BankAccount createAccount()
+    public BankAccount createAccount(User user)
     {
         System.out.println("Make a deposit in order to create your account.");
         System.out.println("How much would you like to deposit?");
         double deposit = Double.parseDouble(scanner.nextLine());
-
-        return bankService.openAccount(getUserCredentials(), deposit);
+        return bankService.openAccount(user, deposit);
     }
 
     public void closeAccount(BankAccount bankAccountInfo, Map<String, String> controlMap) {
@@ -141,7 +184,6 @@ public class UserController
 
         public BankAccount withdraw (BankAccount bankAccountInfo)
         {
-            if (bankAccountInfo.getUser().hasAccount()) {
                 System.out.println("Your current balance is: " + bankAccountInfo.getBalance());
                 System.out.println("How much would you like to withdraw?");
                 double withdrawal = Double.parseDouble(scanner.nextLine());
@@ -150,13 +192,10 @@ public class UserController
                 bankService.updateBalance(bankAccountInfo);
 
                 return bankAccountInfo;
-            }
-            throw new NullPointerException("You must first create an account.");
         }
 
         public BankAccount deposit (BankAccount bankAccountInfo)
         {
-            if (bankAccountInfo.getUser().hasAccount()) {
                 System.out.println("Your current balance is: " + bankAccountInfo.getBalance());
                 System.out.println("How much would you like to deposit?");
                 double deposit = Double.parseDouble(scanner.nextLine());
@@ -165,7 +204,5 @@ public class UserController
                 bankService.updateBalance(bankAccountInfo);
 
                 return bankAccountInfo;
-            }
-            throw new NullPointerException("You must first create an account.");
         }
 }
