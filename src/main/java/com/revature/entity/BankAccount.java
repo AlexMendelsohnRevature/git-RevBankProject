@@ -17,6 +17,13 @@ public class BankAccount implements Serializable {
         this.balance = balance;
     }
 
+    public BankAccount(int id, String username, double balance)
+    {
+        this.id = id;
+        this.username = username;
+        this.balance = balance;
+    }
+
 
     public int getId() {
         return id;

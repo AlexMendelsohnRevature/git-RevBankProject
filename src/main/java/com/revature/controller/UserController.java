@@ -119,7 +119,7 @@ public class UserController
         System.out.println("Please Enter a Password.");
         newPassword = scanner.nextLine();
 
-        User newCredentials = new User(newUsername, newPassword, false);
+        User newCredentials = new User(newUsername, newPassword);
         User newUser = userService.validateUserCredentials(newCredentials);
 
         BankAccount newAccount = createAccount(newUser);
@@ -132,18 +132,10 @@ public class UserController
         return userService.checkLoginCredentials(getUserCredentials());
     }
 
-    public  User authenticated()
-    {
-        return userService.authenticatedUser();
-    }
 
     public BankAccount authAccount()
     {
-        if(authenticated().isLoggedIn())
-        {
-            return bankService.getAccount();
-        }
-        throw new RuntimeException("No account found.");
+        return bankService.getAccount();
     }
     public User getUserCredentials()
     {
@@ -154,7 +146,9 @@ public class UserController
         System.out.println("Please Enter a Password.");
         newPassword = scanner.nextLine();
 
-        return userService.modifyUser(new User(newUsername, newPassword, true));
+        User user = new User(newUsername, newPassword);
+        User authUser = userService.authenticatedUser(user);
+        return userService.modifyUser(authUser);
     }
 
     public BankAccount createAccount(User user)
@@ -188,7 +182,13 @@ public class UserController
                 System.out.println("How much would you like to withdraw?");
                 double withdrawal = Double.parseDouble(scanner.nextLine());
 
-                bankAccountInfo.setBalance(bankAccountInfo.getBalance() - withdrawal);
+                if(bankAccountInfo.getBalance() - withdrawal > 0) {
+                    bankAccountInfo.setBalance(bankAccountInfo.getBalance() - withdrawal);
+                }
+                else
+                {
+                    System.out.println("Cannot drop balance below $0.");
+                }
                 bankService.updateBalance(bankAccountInfo);
 
                 return bankAccountInfo;

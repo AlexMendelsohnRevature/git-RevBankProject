@@ -68,9 +68,9 @@ public class UserService {
         return userDao.updateUser(credentials);
     }
 
-    public User authenticatedUser(){
-        User user = userDao.getUser();
-        user.setLoggedIn(true);
-        return user;
+    public User authenticatedUser(User user){
+        User authUser = userDao.getUser(userDao.getUserID(user.getUsername(), user.getPassword()).getId());
+        authUser.setLoggedIn(true);
+        return authUser;
     }
 }

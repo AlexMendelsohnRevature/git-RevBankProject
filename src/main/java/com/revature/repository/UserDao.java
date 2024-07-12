@@ -7,8 +7,9 @@ import java.util.List;
 public interface UserDao {
 
     User createUser(User newUserCredentials);
-    User getUser();
+    User getUser(int id);
     User updateUser(User userCredentials);
+    User getUserID(String username, String password);
     List<User> getAllUsers();
 
 }

@@ -28,7 +28,7 @@ public class BankService {
 
     public BankAccount updateBalance(BankAccount bankAccountInfo)
     {
-        System.out.println("Your updated account balance is now:" + bankAccountInfo.getBalance());
+        System.out.println("Your updated account balance is now: $" + bankAccountInfo.getBalance());
         return bankDao.updateBankAccount(bankAccountInfo);
     }
 
