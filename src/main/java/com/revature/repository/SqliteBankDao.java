@@ -11,13 +11,12 @@ import java.util.List;
 public class SqliteBankDao implements BankDao {
     @Override
     public BankAccount createBankAccount(BankAccount newBankAccountInfo) {
-        String sql = "insert into account values (?, ?, ?)";
+        String sql = "insert into account (username, balance) values (?, ?)";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, newBankAccountInfo.getUsername());
-            preparedStatement.setString(2, newBankAccountInfo.getPassword());
-            preparedStatement.setDouble(3, newBankAccountInfo.getBalance());
+            preparedStatement.setDouble(2, newBankAccountInfo.getBalance());
             int result = preparedStatement.executeUpdate();
             if(result == 1)
             {
@@ -32,13 +31,13 @@ public class SqliteBankDao implements BankDao {
 
     @Override
     public void deleteBankAccount(BankAccount bankAccountInfo) {
-        String sql = "delete from account where username = ?";
+        String sql = "delete from account where id = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, bankAccountInfo.getUsername());
-            int resultSet = preparedStatement.executeUpdate();
-            if(resultSet > 0)
+            preparedStatement.setInt(1, bankAccountInfo.getId());
+            int rowCount = preparedStatement.executeUpdate();
+            if(rowCount > 0)
             {
                 System.out.println("Account deleted successfully!");
             }
@@ -54,13 +53,13 @@ public class SqliteBankDao implements BankDao {
 
     @Override
     public BankAccount updateBankAccount(BankAccount bankAccountInfo) {
-            String sql = "update account set username = ?, password = ?, balance = ?";
+            //Updates everything besides ID
+            String sql = "update account set username = ?, balance = ? where id = ?";
             try(Connection connection = DatabaseConnector.createConnection())
             {
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, bankAccountInfo.getUsername());
-                preparedStatement.setString(2, bankAccountInfo.getPassword());
-                preparedStatement.setDouble(3, bankAccountInfo.getBalance());
+                preparedStatement.setDouble(2, bankAccountInfo.getBalance());
                 int resultSet = preparedStatement.executeUpdate();
                 if(resultSet > 0)
                 {
@@ -89,8 +88,8 @@ public class SqliteBankDao implements BankDao {
             BankAccount bankAccount = new BankAccount();
             while(resultSet.next())
             {
+                bankAccount.setId(resultSet.getInt("id"));
                 bankAccount.setUsername(resultSet.getString("username"));
-                bankAccount.setPassword(resultSet.getString("password"));
                 bankAccount.setBalance(resultSet.getDouble("balance"));
 
             }

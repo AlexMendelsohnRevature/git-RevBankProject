@@ -18,7 +18,7 @@ public class BankService {
 
     public BankAccount openAccount(User user, double startingDeposit)
     {
-        return bankDao.createBankAccount(new BankAccount(user.getUsername(), user.getPassword(), startingDeposit));
+        return bankDao.createBankAccount(new BankAccount(user.getUsername(), startingDeposit));
     }
 
     public void closeAccount(BankAccount bankAccountInfo)

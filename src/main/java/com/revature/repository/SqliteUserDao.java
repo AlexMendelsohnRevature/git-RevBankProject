@@ -14,7 +14,7 @@ public class SqliteUserDao implements UserDao {
     @Override
     public User createUser(User newUserCredentials) {
 
-        String sql = "insert into user values (?, ?, ?)";
+        String sql = "insert into user (username, password, loggedIn) values (?, ?, ?)";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -35,7 +35,8 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public User getUser() {
-        String sql = "select * from user where username = ? and password = ? and loggedIn = ?";
+
+        String sql = "select * from user where id = ? username = ? and password = ? and loggedIn = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             Statement statement = connection.createStatement();
@@ -57,15 +58,15 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public User updateUser(User userCredentials) {
-        String sql = "update user set username = ?, password = ?, loggedIn = ?";
+        String sql = "update user set (username = ?, password = ?, loggedIn = ?) where id = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userCredentials.getUsername());
             preparedStatement.setString(2, userCredentials.getPassword());
             preparedStatement.setBoolean(3, userCredentials.isLoggedIn());
-            int resultSet = preparedStatement.executeUpdate();
-            if(resultSet > 0)
+            int rowCount = preparedStatement.executeUpdate();
+            if(rowCount > 0)
             {
                 return userCredentials;
             }

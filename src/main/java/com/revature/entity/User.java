@@ -11,6 +11,8 @@ public class User implements Serializable {
 
     private boolean loggedIn;
 
+    private int id;
+
     public User(){}
 
     public User(String username, String password, boolean loggedIn)
@@ -18,6 +20,14 @@ public class User implements Serializable {
         this.username = username;
         this.password = password;
         this.loggedIn = loggedIn;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -50,12 +60,12 @@ public class User implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getPassword(), user.getPassword());
+        return isLoggedIn() == user.isLoggedIn() && getId() == user.getId() && Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getPassword(), user.getPassword());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUsername(), getPassword());
+        return Objects.hash(getUsername(), getPassword(), isLoggedIn(), getId());
     }
 
     @Override
@@ -63,6 +73,8 @@ public class User implements Serializable {
         return "User{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", loggedIn=" + loggedIn +
+                ", id=" + id +
                 '}';
     }
 }
