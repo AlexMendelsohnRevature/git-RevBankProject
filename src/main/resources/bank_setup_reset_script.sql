@@ -1,17 +1,19 @@
-drop table if exists "user";
-drop table if exists "account";
+drop table if exists users;
+drop table if exists accounts;
 
-create table "user"(
-    id int,
+create table users(
+    id INTEGER primary key autoincrement,
 	username text,
 	password text,
 	loggedIn bit not null
 );
 
-create table "account"(
-    id int,
+create table accounts (
+    id INTEGER primary key autoincrement,
+    userid int,
+    balance double,
     username text,
-    balance double
+    foreign key (userid) references users (id)
 );
 
-select * from "account" a join "user" u on u.id = a.id;
+select * from accounts a join users u on a.userid = u.id;

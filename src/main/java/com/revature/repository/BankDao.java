@@ -7,7 +7,11 @@ import java.util.List;
 public interface BankDao {
 
     BankAccount createBankAccount(BankAccount newBankAccountInfo);
-    void deleteBankAccount(BankAccount bankAccountInfo);
-    BankAccount updateBankAccount(BankAccount bankAccountInfo);
-    BankAccount getBankAccount();
+    List<BankAccount> getBankAccounts(int userid);
+    double getBalance(int userid);
+    void deleteBankAccount(int id);
+    BankAccount getBankAccount(int userid);
+    BankAccount getBankAccountByID(int id);
+    BankAccount updateBankAccount(BankAccount bankAccountInfo, double updatedBalance);
+    BankAccount getAllBankAccounts();
 }

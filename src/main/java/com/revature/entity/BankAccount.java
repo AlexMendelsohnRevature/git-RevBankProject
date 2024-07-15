@@ -6,22 +6,17 @@ import java.util.Objects;
 public class BankAccount implements Serializable {
 
     private int id;
-    private String username;
+    private int userid;
     private double balance;
+    private String username;
 
     public BankAccount(){}
 
-    public BankAccount(String username, double balance)
+    public BankAccount(int userid, double balance, String username)
     {
-        this.username = username;
+        this.userid = userid;
         this.balance = balance;
-    }
-
-    public BankAccount(int id, String username, double balance)
-    {
-        this.id = id;
         this.username = username;
-        this.balance = balance;
     }
 
 
@@ -33,12 +28,12 @@ public class BankAccount implements Serializable {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public int getUserID() {
+        return userid;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserID(int userid) {
+        this.userid = userid;
     }
 
     public double getBalance() {
@@ -49,25 +44,34 @@ public class BankAccount implements Serializable {
         this.balance = balance;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BankAccount that = (BankAccount) o;
-        return getId() == that.getId() && Double.compare(getBalance(), that.getBalance()) == 0 && Objects.equals(getUsername(), that.getUsername());
+        return getId() == that.getId() && userid == that.userid && Double.compare(getBalance(), that.getBalance()) == 0 && Objects.equals(getUsername(), that.getUsername());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getUsername(), getBalance());
+        return Objects.hash(getId(), userid, getBalance(), getUsername());
     }
 
     @Override
     public String toString() {
         return "BankAccount{" +
                 "id=" + id +
-                ", username='" + username + '\'' +
+                ", userid=" + userid +
                 ", balance=" + balance +
+                ", username='" + username + '\'' +
                 '}';
     }
 }

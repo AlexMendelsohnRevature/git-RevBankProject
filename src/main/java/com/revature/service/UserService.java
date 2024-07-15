@@ -2,6 +2,7 @@ package com.revature.service;
 
 import com.revature.entity.User;
 import com.revature.exception.LoginFail;
+import com.revature.exception.ValidateUserException;
 import com.revature.repository.UserDao;
 
 import java.util.List;
@@ -22,8 +23,9 @@ public class UserService {
             {
                 return userDao.createUser(newUserCredentials);
             }
+            throw new ValidateUserException("Username is already taken.");
         }
-        throw new RuntimeException("An account with that name exists or invalid account name.");
+        throw new RuntimeException("Username or Password invalid Must be less than 30 Characters.");
     }
 
     public User checkLoginCredentials(User credentials)
@@ -32,8 +34,7 @@ public class UserService {
         {
             boolean usernameMatches = user.getUsername().equals(credentials.getUsername());
             boolean passwordMatches = user.getPassword().equals(credentials.getPassword());
-            boolean loggedIn = user.isLoggedIn();
-            if(usernameMatches && passwordMatches && !loggedIn)
+            if(usernameMatches && passwordMatches)
             {
                 return credentials;
             }
@@ -69,7 +70,7 @@ public class UserService {
     }
 
     public User authenticatedUser(User user){
-        User authUser = userDao.getUser(userDao.getUserID(user.getUsername(), user.getPassword()).getId());
+        User authUser = userDao.getUser(userDao.getUserID(user.getUsername(), user.getPassword()));
         authUser.setLoggedIn(true);
         return authUser;
     }

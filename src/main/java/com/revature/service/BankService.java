@@ -1,10 +1,10 @@
 package com.revature.service;
 
 import com.revature.entity.BankAccount;
-import com.revature.entity.User;
-import com.revature.exception.CloseAccountException;
-import com.revature.exception.CreateAccountException;
+
 import com.revature.repository.BankDao;
+
+import java.util.List;
 
 public class BankService {
 
@@ -16,24 +16,56 @@ public class BankService {
     }
 
 
-    public BankAccount openAccount(User user, double startingDeposit)
+    public BankAccount openAccount(int userid, double startingDeposit, String username)
     {
-        return bankDao.createBankAccount(new BankAccount(user.getUsername(), startingDeposit));
+        System.out.println("New Checking Account created with a starting balance of: $" + startingDeposit);
+        return bankDao.createBankAccount(new BankAccount(userid, startingDeposit, username));
     }
 
-    public void closeAccount(BankAccount bankAccountInfo)
+    public void closeAccount(int id)
     {
-        bankDao.deleteBankAccount(bankAccountInfo);
+        bankDao.deleteBankAccount(id);
     }
 
-    public BankAccount updateBalance(BankAccount bankAccountInfo)
+    public BankAccount updateBalance(int id, String s, double amount)
     {
-        System.out.println("Your updated account balance is now: $" + bankAccountInfo.getBalance());
-        return bankDao.updateBankAccount(bankAccountInfo);
+
+        BankAccount currentAccount = bankDao.getBankAccountByID(id);
+
+        double balance = getBalance(currentAccount.getUserID());
+        if(s.equals("w"))
+        {
+            if(currentAccount.getBalance() - amount > 0) {
+                balance -= amount;
+                BankAccount updatedAccount = bankDao.updateBankAccount(currentAccount, balance);
+                System.out.println("Your updated account balance is now: $" + balance);
+                return updatedAccount;
+            }
+            else {
+                System.out.println("Cannot drop balance below $0.");
+                return currentAccount;
+            }
+        }
+        else if(s.equals("d"))
+        {
+            balance += amount;
+            BankAccount updatedAccount = bankDao.updateBankAccount(currentAccount, balance);
+            System.out.println("Your updated account balance is now: $" + balance);
+            return updatedAccount;
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public BankAccount getAccount()
+    public double getBalance(int userid)
     {
-        return bankDao.getBankAccount();
+        return bankDao.getBalance(userid);
+    }
+
+    public List<BankAccount> getAccounts(int userid)
+    {
+        return bankDao.getBankAccounts(userid);
     }
 }

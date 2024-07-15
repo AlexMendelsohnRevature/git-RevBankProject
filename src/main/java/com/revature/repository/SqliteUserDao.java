@@ -14,7 +14,7 @@ public class SqliteUserDao implements UserDao {
     @Override
     public User createUser(User newUserCredentials) {
 
-        String sql = "insert into user (username, password, loggedIn) values (?, ?, ?)";
+        String sql = "insert into users (username, password, loggedIn) values (?, ?, ?)";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             long key = -1L;
@@ -40,7 +40,7 @@ public class SqliteUserDao implements UserDao {
     @Override
     public User getUser(int id) {
 
-        String sql = "select username, password, loggedIn from user where id = ?";
+        String sql = "select username, password, loggedIn from users where id = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -64,7 +64,7 @@ public class SqliteUserDao implements UserDao {
 
     @Override
     public User updateUser(User userCredentials) {
-        String sql = "update user set username = ?, password = ?, loggedIn = ? where id = ?";
+        String sql = "update users set username = ?, password = ?, loggedIn = ? where id = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -89,20 +89,20 @@ public class SqliteUserDao implements UserDao {
     }
 
     @Override
-    public User getUserID(String username, String password) {
-        String sql = "select id from user where username = ? and password = ?";
+    public int getUserID(String username, String password) {
+        String sql = "select id from users where username = ? and password = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();
-            User user = new User();
+            int id = 0;
             if(resultSet.next())
             {
-                user.setId(resultSet.getInt("id"));
+                id = resultSet.getInt("id");
             }
-            return user;
+            return id;
         }
         catch (SQLException exception)
         {
@@ -113,7 +113,7 @@ public class SqliteUserDao implements UserDao {
     @Override
     public List<User> getAllUsers() {
 
-        String sql = "select * from user";
+        String sql = "select * from users";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             Statement statement = connection.createStatement();

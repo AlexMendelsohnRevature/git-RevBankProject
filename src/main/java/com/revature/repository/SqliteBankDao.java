@@ -11,15 +11,20 @@ import java.util.List;
 public class SqliteBankDao implements BankDao {
     @Override
     public BankAccount createBankAccount(BankAccount newBankAccountInfo) {
-        String sql = "insert into account (username, balance) values (?, ?)";
+        String sql = "insert into accounts (userid, balance, username) values (?, ?, ?)";
         try(Connection connection = DatabaseConnector.createConnection())
         {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, newBankAccountInfo.getUsername());
+            long key = -1L;
+            PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setInt(1, newBankAccountInfo.getUserID());
             preparedStatement.setDouble(2, newBankAccountInfo.getBalance());
+            preparedStatement.setString(3, newBankAccountInfo.getUsername());
             int result = preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if(result == 1)
             {
+                key = resultSet.getLong(1);
+                newBankAccountInfo.setId((int)key);
                 return newBankAccountInfo;
             }
             throw new UserSQLException("User could not be created please try again.");
@@ -30,12 +35,60 @@ public class SqliteBankDao implements BankDao {
     }
 
     @Override
-    public void deleteBankAccount(BankAccount bankAccountInfo) {
-        String sql = "delete from account where id = ?";
+    public List<BankAccount> getBankAccounts(int userid) {
+
+        String sql = "select * from accounts where userid = ?";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, bankAccountInfo.getId());
+            preparedStatement.setInt(1, userid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<BankAccount> bankAccounts = new ArrayList<>();
+            while(resultSet.next())
+            {
+                BankAccount bankAccount = new BankAccount();
+                bankAccount.setId(resultSet.getInt("id"));
+                bankAccount.setUserID(resultSet.getInt("userid"));
+                bankAccount.setBalance(resultSet.getDouble("balance"));
+                bankAccount.setUsername(resultSet.getString("username"));
+                bankAccounts.add(bankAccount);
+            }
+            return bankAccounts;
+        }
+        catch (SQLException exception)
+        {
+            throw new UserSQLException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public double getBalance(int userid) {
+        String sql = "select balance from accounts where userid = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            double balance = 0;
+            if(resultSet.next())
+            {
+                balance =  resultSet.getDouble("balance");
+            }
+            return balance;
+        }
+        catch (SQLException exception)
+        {
+            throw new UserSQLException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteBankAccount(int id) {
+        String sql = "delete from accounts where id = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
             int rowCount = preparedStatement.executeUpdate();
             if(rowCount > 0)
             {
@@ -52,16 +105,63 @@ public class SqliteBankDao implements BankDao {
     }
 
     @Override
-    public BankAccount updateBankAccount(BankAccount bankAccountInfo) {
-            //Updates everything besides ID
-            String sql = "update account set username = ?, balance = ? where id = ?";
+    public BankAccount getBankAccount(int userid) {
+        String sql = "select * from accounts where userid = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, userid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            BankAccount bankAccount = new BankAccount();
+            if(resultSet.next())
+            {
+                bankAccount.setId(resultSet.getInt("id"));
+                bankAccount.setUserID(resultSet.getInt("userid"));
+                bankAccount.setBalance(resultSet.getDouble("balance"));
+                bankAccount.setUsername(resultSet.getString("username"));
+            }
+            return bankAccount;
+        }
+        catch (SQLException exception)
+        {
+            throw new UserSQLException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public BankAccount getBankAccountByID(int id) {
+        String sql = "select * from accounts where id = ?";
+        try(Connection connection = DatabaseConnector.createConnection())
+        {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            BankAccount bankAccount = new BankAccount();
+            if(resultSet.next())
+            {
+                bankAccount.setId(resultSet.getInt("id"));
+                bankAccount.setUserID(resultSet.getInt("userid"));
+                bankAccount.setBalance(resultSet.getDouble("balance"));
+                bankAccount.setUsername(resultSet.getString("username"));
+            }
+            return bankAccount;
+        }
+        catch (SQLException exception)
+        {
+            throw new UserSQLException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public BankAccount updateBankAccount(BankAccount bankAccountInfo, double updatedBalance) {
+            String sql = "update accounts set balance = ? where id = ?";
             try(Connection connection = DatabaseConnector.createConnection())
             {
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString(1, bankAccountInfo.getUsername());
-                preparedStatement.setDouble(2, bankAccountInfo.getBalance());
-                int resultSet = preparedStatement.executeUpdate();
-                if(resultSet > 0)
+                preparedStatement.setDouble(1, updatedBalance);
+                preparedStatement.setInt(2, bankAccountInfo.getId());
+                int rowCount = preparedStatement.executeUpdate();
+                if(rowCount > 0)
                 {
                     return bankAccountInfo;
                 }
@@ -78,9 +178,9 @@ public class SqliteBankDao implements BankDao {
 
 
     @Override
-    public BankAccount getBankAccount() {
+    public BankAccount getAllBankAccounts() {
         
-        String sql = "select * from account";
+        String sql = "select * from accounts";
         try(Connection connection = DatabaseConnector.createConnection())
         {
             Statement statement = connection.createStatement();
@@ -89,9 +189,8 @@ public class SqliteBankDao implements BankDao {
             while(resultSet.next())
             {
                 bankAccount.setId(resultSet.getInt("id"));
-                bankAccount.setUsername(resultSet.getString("username"));
+                bankAccount.setUserID(resultSet.getInt("userid"));
                 bankAccount.setBalance(resultSet.getDouble("balance"));
-
             }
             return bankAccount;
         }

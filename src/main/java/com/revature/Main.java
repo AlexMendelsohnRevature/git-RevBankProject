@@ -30,10 +30,15 @@ public class Main {
             while(Boolean.parseBoolean(controlMap.get("Continue Loop"))){
 
                 userController.promptUserForService(controlMap);
-                if(controlMap.containsKey("User")){
-                    System.out.printf("Banking stuff for %s can happen here! Press any key to continue", controlMap.get("User"));
+                if(controlMap.containsKey("LoggedIn")){
+                    System.out.printf("Account Options for %s can happen here! Press any key to continue", controlMap.get("User"));
+                    userController.promptUserForAccountOptions(controlMap);
+                }
+                if(controlMap.containsKey("Account"))
+                {
+                    System.out.printf("Banking for %s can happen here! Press any key to continue", controlMap.get("Account"));
                     scanner.nextLine();
-
+                    userController.promptUserForOptions(controlMap);
                 }
             }
         }
