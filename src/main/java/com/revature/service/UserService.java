@@ -15,17 +15,9 @@ public class UserService {
         this.userDao = userDao;
     }
 
-    public User validateUserCredentials(User newUserCredentials)
+    public User createUser(User newUserCredentials)
     {
-        if(checkUsernamePasswordLength(newUserCredentials))
-        {
-            if(checkUsernameIsUnique(newUserCredentials))
-            {
-                return userDao.createUser(newUserCredentials);
-            }
-            throw new ValidateUserException("Username is already taken.");
-        }
-        throw new RuntimeException("Username or Password invalid Must be less than 30 Characters.");
+        return userDao.createUser(newUserCredentials);
     }
 
     public User checkLoginCredentials(User credentials)
@@ -42,14 +34,14 @@ public class UserService {
         throw new LoginFail("Credentials are invalid: please try again");
     }
 
-    private boolean checkUsernamePasswordLength(User newUserCredentials)
+    public boolean checkUsernamePasswordLength(User newUserCredentials)
     {
         boolean usernameIsValid = newUserCredentials.getUsername().length() <= 30;
         boolean passwordIsValid = newUserCredentials.getPassword().length() <= 30;
         return usernameIsValid && passwordIsValid;
     }
 
-    private boolean checkUsernameIsUnique(User newUserCredentials)
+    public boolean checkUsernameIsUnique(User newUserCredentials)
     {
         boolean userNameIsUnique = true;
         List<User> users = userDao.getAllUsers();

@@ -3,6 +3,7 @@ package com.revature.controller;
 import com.revature.entity.BankAccount;
 import com.revature.entity.User;
 import com.revature.exception.LoginFail;
+import com.revature.exception.ValidateUserException;
 import com.revature.service.BankService;
 import com.revature.service.UserService;
 
@@ -180,9 +181,23 @@ public class UserController
         newPassword = scanner.nextLine();
 
         User newCredentials = new User(newUsername, newPassword);
-        User newUser = userService.validateUserCredentials(newCredentials);
+        User newUser = new User();
+        if(userService.checkUsernamePasswordLength(newCredentials))
+        {
+            if(userService.checkUsernameIsUnique(newCredentials))
+            {
+               newUser = userService.createUser(newCredentials);
+               System.out.println("New user account created: " + newUser.toString());
+            }
+            else {
+                System.out.println("Username is already taken.");
+            }
+        }
+        else
+        {
+            System.out.println("Username or Password invalid Must be less than 30 Characters.");
+        }
 
-        System.out.println("New user account created: " + newUser.toString());
     }
 
     public void login(Map<String, String> controlMap)
